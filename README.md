@@ -29,6 +29,7 @@ Common flags:
 - `--duration 120` – exit after N seconds (otherwise run until `Ctrl+C`)
 - `--interval 250` – override RSSI polling interval (ms)
 - `--raw` – emit newline-delimited JSON instead of ASCII art
+- `--debug` – disable the visualizer and print one diagnostic line per RSSI sample
 
 ### Screenshot / Concept Preview
 ```
@@ -43,6 +44,18 @@ Common flags:
 2. **Analytics** – Recent samples (window of 20) feed a standard deviation + EMA to derive jitter, intensity, and running min/max/avg/peak stats. Sensitivity simply scales the divisors in the intensity mapping.
 3. **Visualization** – The renderer reuses the Presence Observer aesthetic: rings (`░`, `◆`, `█`) and traveling chords animate with ANSI colors (#4de6c8 cyan, #9e6dff purple). When intensity crosses 0.7, a “surge” thickens rings and brightens chords. Status text cycles between `静寂` (silence), `……気配` (faint presence), and `干渉` (interference).
 4. **Optional logging** – When `--log` is set, each reading is appended as JSON with timestamp, jitter, and aggregated stats for further analytics.
+
+## Limitations of Motion Detection
+
+Motion sensing depends entirely on how your operating system and Wi-Fi driver expose RSSI:
+
+- **Static RSSI feeds** – Many Windows laptops (especially when running the CLI inside WSL) report a perfectly steady RSSI via `netsh`/`iwconfig`. If the signal never moves, the breeze detector never sees oscillations—nothing to do with the app itself.
+- **Virtualization gaps** – WSL, VMs, and remote shells often provide synthetic network adapters with fixed values or no Wi-Fi access at all. Motion detection cannot operate without real-time dBm changes coming from the hardware.
+- **Driver throttling** – Some NIC drivers only refresh RSSI every several seconds or clamp it to coarse buckets, which is too slow for subtle movement sensing.
+- **Platform permissions** – Locked-down environments (corporate builds, kiosk modes, shared machines) may block `netsh`, `airport`, or `iwconfig`, resulting in repeated “unable to parse RSSI” errors. This is expected behavior, not a bug.
+- **Environmental noise** – Nearby APs, mesh backhaul, or microwave ovens can overshadow small disturbances. The detector intentionally embraces ambiguity, so false positives/negatives are part of the experience.
+
+If your setup falls into one of these categories, the CLI will still run, but the breeziness phrases will never progress beyond `静寂`. The limitation is upstream of this project; try executing natively on the host OS (not WSL) or on hardware/OS combos known to expose live RSSI variation.
 
 ## Motion Detection (Experimental)
 
@@ -75,6 +88,10 @@ presence-observer-wifi
 # tweak responsiveness
 presence-observer-wifi --sensitivity 0.8   # more reactive, faster to report breezes
 presence-observer-wifi --sensitivity 1.3   # calmer, requires bigger oscillations
+
+# debug view (no ANSI art, per-sample lines)
+presence-observer-wifi --debug
+```
 ```
 
 ## Limitations

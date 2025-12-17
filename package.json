@@ -1,0 +1,32 @@
+{
+  "name": "presence-observer-wifi",
+  "version": "1.0.0",
+  "description": "Visualize Wi-Fi RSSI fluctuations as a CLI art installation",
+  "bin": {
+    "presence-observer-wifi": "src/cli.js"
+  },
+  "type": "module",
+  "scripts": {
+    "start": "node src/cli.js"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "terminal-kit": "^3.0.0",
+    "yargs": "^17.7.2"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/presence-observer-wifi.git"
+  },
+  "keywords": [
+    "wifi",
+    "rssi",
+    "cli",
+    "art",
+    "visualization"
+  ],
+  "license": "MIT"
+}
